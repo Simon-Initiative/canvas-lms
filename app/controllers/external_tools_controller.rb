@@ -110,6 +110,9 @@ class ExternalToolsController < ApplicationController
   #      { ...  }
   #     ]
   def index
+
+    logger.info "DEBUG: external_tools_controller.rb index"
+
     if authorized_action(@context, @current_user, :read)
       if params[:include_parents]
         @tools = ContextExternalTool.all_tools_for(@context, :user => (params[:include_personal] ? @current_user : nil))
