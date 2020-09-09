@@ -1725,6 +1725,10 @@ class ApplicationController < ActionController::Base
         render 'context_modules/url_show'
       end
     elsif tag.content_type == 'ContextExternalTool'
+
+      logger.debug "DEBUG LOGGING ENABLED"
+      logger.info "DEBUG: ContextExternalTool"
+
       @tag = tag
 
       if tag.locked_for? @current_user
@@ -1748,11 +1752,15 @@ class ApplicationController < ActionController::Base
         flash[:error] = t "#application.errors.invalid_external_tool", "Couldn't find valid settings for this link"
         redirect_to named_context_url(context, error_redirect_symbol)
       else
+        logger.info "DEBUG: Settings are valid"
+
         log_asset_access(@tool, "external_tools", "external_tools", overwrite: false)
         @opaque_id = @tool.opaque_identifier_for(@tag)
 
         launch_settings = @tool.settings['post_only'] ? {post_only: true, tool_dimensions: tool_dimensions} : {tool_dimensions: tool_dimensions}
         @lti_launch = Lti::Launch.new(launch_settings)
+
+        logger.info "DEBUG: launch_settings #{launch_settings}"
 
         success_url = case tag_type
         when :assignments
@@ -1776,6 +1784,8 @@ class ApplicationController < ActionController::Base
                  :redirect_return_cancel_url => success_url)
         end
 
+        logger.info "DEBUG: success_url: #{success_url}"
+
         opts = {
             launch_url: @tool.login_or_launch_url(content_tag_uri: @resource_url),
             link_code: @opaque_id,
@@ -1790,7 +1800,10 @@ class ApplicationController < ActionController::Base
                                                         launch: @lti_launch,
                                                         tool: @tool})
 
+        logger.info "DEBUG: opts #{opts}"
+
         adapter = if @tool.use_1_3?
+          logger.info "DEBUG: @tool.use_1_3? #{@tool.use_1_3?}"
           # Use the resource URL as the target_link_uri
           opts[:launch_url] = @resource_url
 
@@ -1805,6 +1818,8 @@ class ApplicationController < ActionController::Base
         else
           Lti::LtiOutboundAdapter.new(@tool, @current_user, @context).prepare_tool_launch(@return_url, variable_expander, opts)
         end
+
+        logger.info "DEBUG: adapter created"
 
         if tag.try(:context_module)
           # if you change this, see also url_show.html.erb
@@ -1832,9 +1847,15 @@ class ApplicationController < ActionController::Base
           @lti_launch.params = adapter.generate_post_payload
         end
 
+        logger.info "DEBUG: @lti_launch.params #{@lti_launch.params}"
+
         @lti_launch.resource_url = @tool.login_or_launch_url(content_tag_uri: @resource_url)
         @lti_launch.link_text = @resource_title
         @lti_launch.analytics_id = @tool.tool_id
+
+        logger.info "DEBUG: @lti_launch.resource_url #{@lti_launch.resource_url}"
+        logger.info "DEBUG: @lti_launch.link_text #{@lti_launch.link_text}"
+        logger.info "DEBUG: @lti_launch.analytics_id #{@lti_launch.analytics_id}"
 
         @append_template = 'context_modules/tool_sequence_footer' unless render_external_tool_full_width?
         render Lti::AppUtil.display_template(external_tool_redirect_display_type)
