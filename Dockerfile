@@ -7,7 +7,7 @@ ARG RUBY=2.6
 FROM instructure/passenger-nginx-alpine:${RUBY} AS ruby-gems-only
 LABEL maintainer="Instructure"
 
-ARG POSTGRES_CLIENT=12.2
+ARG POSTGRES_CLIENT=12.4-r0
 ARG ALPINE_MIRROR=http://dl-cdn.alpinelinux.org/alpine
 
 ENV APP_HOME /usr/src/app/
