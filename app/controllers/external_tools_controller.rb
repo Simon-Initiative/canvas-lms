@@ -110,9 +110,6 @@ class ExternalToolsController < ApplicationController
   #      { ...  }
   #     ]
   def index
-
-    logger.info "DEBUG: external_tools_controller.rb index"
-
     if authorized_action(@context, @current_user, :read)
       if params[:include_parents]
         @tools = ContextExternalTool.all_tools_for(@context, :user => (params[:include_personal] ? @current_user : nil))
@@ -368,6 +365,12 @@ class ExternalToolsController < ApplicationController
   #        "not_selectable": false
   #      }
   def show
+
+    logger.debug "DEBUG: external_tools_controller.rb _external_tool_show"
+    logger.info "DEBUG: external_tools_controller.rb index"
+    logger.warn "DEBUG: external_tools_controller.rb index"
+    logger.error "DEBUG: external_tools_controller.rb index"
+
     if api_request?
       tool = @context.context_external_tools.active.find(params[:external_tool_id])
       render :json => external_tool_json(tool, @context, @current_user, session)
