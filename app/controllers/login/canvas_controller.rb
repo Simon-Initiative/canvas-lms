@@ -36,6 +36,13 @@ class Login::CanvasController < ApplicationController
   end
 
   def create
+
+    puts "################### DEBUG #########################"
+    logger.debug "DEBUG: canvas_controller.rb create"
+    logger.info "DEBUG: canvas_controller.rb create"
+    logger.warn "DEBUG: canvas_controller.rb create"
+    logger.error "DEBUG: canvas_controller.rb create"
+
     # Check referer and authenticity token.  If the token is invalid but the referer is trusted
     # and one is not provided then continue.  If the referer is trusted and they provide a token
     # we still want to check it.
