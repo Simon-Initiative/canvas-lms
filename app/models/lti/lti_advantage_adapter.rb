@@ -57,7 +57,10 @@ module Lti
     end
 
     def generate_lti_params
+      logger.info "DEBUG: generate_lti_params"
       message_type = @tool.extension_setting(resource_type, :message_type)
+
+      logger.info "DEBUG: message_type: #{message_type}"
       if message_type == LtiAdvantage::Messages::DeepLinkingRequest::MESSAGE_TYPE
         deep_linking_request.generate_post_payload
       else

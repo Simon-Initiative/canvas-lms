@@ -37,6 +37,8 @@ module Lti::Messages
     end
 
     def generate_post_payload_message(validate_launch: true)
+      logger.info "DEBUG: generate_post_payload_message"
+
       raise 'Class can only be used once.' if @used
       @used = true
 
@@ -54,6 +56,9 @@ module Lti::Messages
       add_names_and_roles_service_claims! if include_names_and_roles_service_claims?
 
       @expander.expand_variables!(@message.extensions)
+
+      logger.info "DEBUG: message.validate! #{validate_launch}"
+
       @message.validate! if validate_launch
       @message
     end
