@@ -1849,6 +1849,7 @@ class ApplicationController < ActionController::Base
               )
             end
           else
+            logger.info "DEBUG: adapter.generate_post_payload"
             @lti_launch.params = adapter.generate_post_payload
           end
 
