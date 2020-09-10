@@ -1822,6 +1822,7 @@ class ApplicationController < ActionController::Base
         logger.info "DEBUG: adapter created"
 
         begin
+          logger.info "DEBUG: tag.try(:context_module)"
           if tag.try(:context_module)
             # if you change this, see also url_show.html.erb
             cu = context_url(@context, :context_context_modules_url)
@@ -1830,12 +1831,15 @@ class ApplicationController < ActionController::Base
             add_crumb @tag.title
           end
 
+          logger.info "DEBUG: if @assignment"
           if @assignment
+            logger.info "DEBUG: return unless require_user: #{require_user}"
             return unless require_user
             add_crumb(@resource_title)
             @mark_done = MarkDonePresenter.new(self, @context, params["module_item_id"], @current_user, @assignment)
             @prepend_template = 'assignments/lti_header' unless render_external_tool_full_width?
             begin
+              logger.info "DEBUG: @lti_launch.params"
               @lti_launch.params = lti_launch_params(adapter)
             rescue Lti::Ims::AdvantageErrors::InvalidLaunchError
               return render_error_with_details(
