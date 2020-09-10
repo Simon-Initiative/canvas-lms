@@ -1821,44 +1821,50 @@ class ApplicationController < ActionController::Base
 
         logger.info "DEBUG: adapter created"
 
-        if tag.try(:context_module)
-          # if you change this, see also url_show.html.erb
-          cu = context_url(@context, :context_context_modules_url)
-          cu = "#{cu}/#{tag.context_module.id}"
-          add_crumb tag.context_module.name, cu
-          add_crumb @tag.title
-        end
-
-        if @assignment
-          return unless require_user
-          add_crumb(@resource_title)
-          @mark_done = MarkDonePresenter.new(self, @context, params["module_item_id"], @current_user, @assignment)
-          @prepend_template = 'assignments/lti_header' unless render_external_tool_full_width?
-          begin
-            @lti_launch.params = lti_launch_params(adapter)
-          rescue Lti::Ims::AdvantageErrors::InvalidLaunchError
-            return render_error_with_details(
-              title: t('LTI Launch Error'),
-              summary: t('There was an error launching to the configured tool.'),
-              directions: t('Please try re-establishing the connection to the tool by re-selecting the tool in the assignment or module item interface and saving.')
-            )
+        begin
+          if tag.try(:context_module)
+            # if you change this, see also url_show.html.erb
+            cu = context_url(@context, :context_context_modules_url)
+            cu = "#{cu}/#{tag.context_module.id}"
+            add_crumb tag.context_module.name, cu
+            add_crumb @tag.title
           end
-        else
-          @lti_launch.params = adapter.generate_post_payload
+
+          if @assignment
+            return unless require_user
+            add_crumb(@resource_title)
+            @mark_done = MarkDonePresenter.new(self, @context, params["module_item_id"], @current_user, @assignment)
+            @prepend_template = 'assignments/lti_header' unless render_external_tool_full_width?
+            begin
+              @lti_launch.params = lti_launch_params(adapter)
+            rescue Lti::Ims::AdvantageErrors::InvalidLaunchError
+              return render_error_with_details(
+                title: t('LTI Launch Error'),
+                summary: t('There was an error launching to the configured tool.'),
+                directions: t('Please try re-establishing the connection to the tool by re-selecting the tool in the assignment or module item interface and saving.')
+              )
+            end
+          else
+            @lti_launch.params = adapter.generate_post_payload
+          end
+
+          logger.info "DEBUG: @lti_launch.params #{@lti_launch.params}"
+
+          @lti_launch.resource_url = @tool.login_or_launch_url(content_tag_uri: @resource_url)
+          @lti_launch.link_text = @resource_title
+          @lti_launch.analytics_id = @tool.tool_id
+
+          logger.info "DEBUG: @lti_launch.resource_url #{@lti_launch.resource_url}"
+          logger.info "DEBUG: @lti_launch.link_text #{@lti_launch.link_text}"
+          logger.info "DEBUG: @lti_launch.analytics_id #{@lti_launch.analytics_id}"
+
+          @append_template = 'context_modules/tool_sequence_footer' unless render_external_tool_full_width?
+          render Lti::AppUtil.display_template(external_tool_redirect_display_type)
+
+        rescue Exception => ex
+          logger.info "DEBUG: rescue Exception => ex"
+          logger.error ex
         end
-
-        logger.info "DEBUG: @lti_launch.params #{@lti_launch.params}"
-
-        @lti_launch.resource_url = @tool.login_or_launch_url(content_tag_uri: @resource_url)
-        @lti_launch.link_text = @resource_title
-        @lti_launch.analytics_id = @tool.tool_id
-
-        logger.info "DEBUG: @lti_launch.resource_url #{@lti_launch.resource_url}"
-        logger.info "DEBUG: @lti_launch.link_text #{@lti_launch.link_text}"
-        logger.info "DEBUG: @lti_launch.analytics_id #{@lti_launch.analytics_id}"
-
-        @append_template = 'context_modules/tool_sequence_footer' unless render_external_tool_full_width?
-        render Lti::AppUtil.display_template(external_tool_redirect_display_type)
       end
     else
       flash[:error] = t "#application.errors.invalid_tag_type", "Didn't recognize the item type for this tag"
