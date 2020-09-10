@@ -366,7 +366,8 @@ class ExternalToolsController < ApplicationController
   #      }
   def show
 
-    logger.debug "DEBUG: external_tools_controller.rb _external_tool_show"
+    puts "################### DEBUG #########################"
+    logger.debug "DEBUG: external_tools_controller.rb index"
     logger.info "DEBUG: external_tools_controller.rb index"
     logger.warn "DEBUG: external_tools_controller.rb index"
     logger.error "DEBUG: external_tools_controller.rb index"
@@ -504,6 +505,13 @@ class ExternalToolsController < ApplicationController
   protected :lti_launch
 
   def basic_lti_launch_request(tool, selection_type = nil, opts = {})
+
+    puts "################### DEBUG #########################"
+    logger.debug "DEBUG: external_tools_controller.rb basic_lti_launch_request"
+    logger.info "DEBUG: external_tools_controller.rb basic_lti_launch_request"
+    logger.warn "DEBUG: external_tools_controller.rb basic_lti_launch_request"
+    logger.error "DEBUG: external_tools_controller.rb basic_lti_launch_request"
+
     lti_launch = tool.settings['post_only'] ? Lti::Launch.new(post_only: true) : Lti::Launch.new
     default_opts = {
         resource_type: selection_type,
