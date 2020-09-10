@@ -1863,7 +1863,8 @@ class ApplicationController < ActionController::Base
 
         rescue Exception => ex
           logger.info "DEBUG: rescue Exception => ex"
-          logger.error ex
+          logger.info exception.backtrace
+          raise
         end
       end
     else
