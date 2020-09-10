@@ -1861,9 +1861,10 @@ class ApplicationController < ActionController::Base
           @append_template = 'context_modules/tool_sequence_footer' unless render_external_tool_full_width?
           render Lti::AppUtil.display_template(external_tool_redirect_display_type)
 
-        rescue Exception => ex
+        rescue => e
           logger.info "DEBUG: rescue Exception => ex"
-          logger.info exception.backtrace
+          logger.error e.message
+          logger.error e.backtrace.join("\n")
           raise
         end
       end
