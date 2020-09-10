@@ -1862,9 +1862,9 @@ class ApplicationController < ActionController::Base
           render Lti::AppUtil.display_template(external_tool_redirect_display_type)
 
         rescue => e
-          logger.error "DEBUG: rescue Exception => ex"
-          logger.error e.message
-          logger.error e.backtrace.join("\n")
+          logger.info "DEBUG: rescue Exception => ex"
+          logger.info e.message
+          logger.info e.backtrace.join("\n")
           raise
         end
       end
